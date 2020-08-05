@@ -165,7 +165,5 @@ typedef FIX::DOMDocumentPtr DOMDocumentPtr;
 %include "../C++/FileStore.h"
 %include "../C++/Application.h"
 %include "../C++/Initiator.h"
-%include "../C++/SSLSocketInitiator.h"
 %include "../C++/Acceptor.h"
-%include "../C++/SSLSocketAcceptor.h"
 %include "../C++/DataDictionary.h"
