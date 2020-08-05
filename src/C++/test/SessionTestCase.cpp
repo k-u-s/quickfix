@@ -113,7 +113,7 @@ public:
   }
 
   void fromAdmin( const FIX::Message& message, const SessionID& )
-  EXCEPT( FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon )
+  throw( FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon )
   {
     MsgType msgType;
     message.getHeader().getField( msgType );
@@ -133,7 +133,7 @@ public:
   }
 
   void fromApp( const FIX::Message& message, const SessionID& )
-  EXCEPT( FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType )
+  throw( FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType )
   {
     MsgType msgType;
     message.getHeader().getField( msgType );
@@ -142,7 +142,7 @@ public:
   }
 
   void toApp( FIX::Message& message, const SessionID& )
-  EXCEPT( DoNotSend )
+  throw( DoNotSend )
   {
     if(checkForDoNotSend) {
       FIX::Text text;
