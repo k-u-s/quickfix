@@ -282,7 +282,7 @@ class SocketAcceptor(SocketAcceptorBase):
 
 #if (HAVE_SSL > 0)
 
-class SSLSocketInitiator(SocketInitiatorBase):
+class SSLSocketInitiator(SSLSocketInitiatorBase):
   application = 0
   storeFactory = 0
   setting = 0
@@ -290,16 +290,16 @@ class SSLSocketInitiator(SocketInitiatorBase):
 
   def __init__(self, application, storeFactory, settings, logFactory=None):
     if logFactory == None:
-      SocketInitiatorBase.__init__(self, application, storeFactory, settings)
+      SSLSocketInitiatorBase.__init__(self, application, storeFactory, settings)
     else:
-      SocketInitiatorBase.__init__(self, application, storeFactory, settings, logFactory)
+      SSLSocketInitiatorBase.__init__(self, application, storeFactory, settings, logFactory)
 
     self.application = application
     self.storeFactory = storeFactory
     self.settings = settings
     self.logFactory = logFactory
 
-class SSLSocketAcceptor(SocketAcceptorBase):
+class SSLSocketAcceptor(SSLSocketAcceptorBase):
   application = 0
   storeFactory = 0
   setting = 0
@@ -307,9 +307,9 @@ class SSLSocketAcceptor(SocketAcceptorBase):
 
   def __init__(self, application, storeFactory, settings, logFactory=None):
     if logFactory == None:
-      SocketAcceptorBase.__init__(self, application, storeFactory, settings)
+      SSLSocketAcceptorBase.__init__(self, application, storeFactory, settings)
     else:
-      SocketAcceptorBase.__init__(self, application, storeFactory, settings, logFactory)
+      SSLSocketAcceptorBase.__init__(self, application, storeFactory, settings, logFactory)
 
     self.application = application
     self.storeFactory = storeFactory

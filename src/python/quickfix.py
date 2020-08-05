@@ -22299,17 +22299,6 @@ class Initiator(object):
 # Register Initiator in _quickfix:
 _quickfix.Initiator_swigregister(Initiator)
 
-class SocketInitiatorBase(Initiator):
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
-    __repr__ = _swig_repr
-
-    def __init__(self, *args):
-        _quickfix.SocketInitiatorBase_swiginit(self, _quickfix.new_SocketInitiatorBase(*args))
-    __swig_destroy__ = _quickfix.delete_SocketInitiatorBase
-
-# Register SocketInitiatorBase in _quickfix:
-_quickfix.SocketInitiatorBase_swigregister(SocketInitiatorBase)
-
 class Acceptor(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 
@@ -22359,17 +22348,6 @@ class Acceptor(object):
 
 # Register Acceptor in _quickfix:
 _quickfix.Acceptor_swigregister(Acceptor)
-
-class SocketAcceptorBase(Acceptor):
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
-    __repr__ = _swig_repr
-
-    def __init__(self, *args):
-        _quickfix.SocketAcceptorBase_swiginit(self, _quickfix.new_SocketAcceptorBase(*args))
-    __swig_destroy__ = _quickfix.delete_SocketAcceptorBase
-
-# Register SocketAcceptorBase in _quickfix:
-_quickfix.SocketAcceptorBase_swigregister(SocketAcceptorBase)
 
 class DataDictionary(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -22564,7 +22542,7 @@ class SocketAcceptor(SocketAcceptorBase):
 
 #if (HAVE_SSL > 0)
 
-class SSLSocketInitiator(SocketInitiatorBase):
+class SSLSocketInitiator(SSLSocketInitiatorBase):
   application = 0
   storeFactory = 0
   setting = 0
@@ -22572,16 +22550,16 @@ class SSLSocketInitiator(SocketInitiatorBase):
 
   def __init__(self, application, storeFactory, settings, logFactory=None):
     if logFactory == None:
-      SocketInitiatorBase.__init__(self, application, storeFactory, settings)
+      SSLSocketInitiatorBase.__init__(self, application, storeFactory, settings)
     else:
-      SocketInitiatorBase.__init__(self, application, storeFactory, settings, logFactory)
+      SSLSocketInitiatorBase.__init__(self, application, storeFactory, settings, logFactory)
 
     self.application = application
     self.storeFactory = storeFactory
     self.settings = settings
     self.logFactory = logFactory
 
-class SSLSocketAcceptor(SocketAcceptorBase):
+class SSLSocketAcceptor(SSLSocketAcceptorBase):
   application = 0
   storeFactory = 0
   setting = 0
@@ -22589,9 +22567,9 @@ class SSLSocketAcceptor(SocketAcceptorBase):
 
   def __init__(self, application, storeFactory, settings, logFactory=None):
     if logFactory == None:
-      SocketAcceptorBase.__init__(self, application, storeFactory, settings)
+      SSLSocketAcceptorBase.__init__(self, application, storeFactory, settings)
     else:
-      SocketAcceptorBase.__init__(self, application, storeFactory, settings, logFactory)
+      SSLSocketAcceptorBase.__init__(self, application, storeFactory, settings, logFactory)
 
     self.application = application
     self.storeFactory = storeFactory

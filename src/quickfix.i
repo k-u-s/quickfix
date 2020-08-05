@@ -16,7 +16,9 @@
 
 %ignore _REENTRANT;
 %rename(SocketInitiatorBase) FIX::SocketInitiator;
+%rename(SSLSocketInitiatorBase) FIX::SSLSocketInitiator;
 %rename(SocketAcceptorBase) FIX::SocketAcceptor;
+%rename(SSLSocketAcceptorBase) FIX::SSLSocketAcceptor;
 
 %{
 #include <config.h>
