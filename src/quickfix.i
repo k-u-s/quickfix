@@ -17,6 +17,7 @@
 %ignore _REENTRANT;
 %rename(SocketInitiatorBase) FIX::SocketInitiator;
 %rename(SocketAcceptorBase) FIX::SocketAcceptor;
+
 %rename(SSLSocketInitiatorBase) FIX::SSLSocketInitiator;
 %rename(SSLSocketAcceptorBase) FIX::SSLSocketAcceptor;
 
@@ -42,6 +43,7 @@
 #include <SocketInitiator.h>
 #include <SSLSocketInitiator.h>
 #include <Acceptor.h>
+#include <SocketAcceptor.h>
 #include <SSLSocketAcceptor.h>
 #include <DataDictionary.h>
 typedef FIX::UtcTimeStamp UtcTimeStamp;
@@ -167,5 +169,9 @@ typedef FIX::DOMDocumentPtr DOMDocumentPtr;
 %include "../C++/FileStore.h"
 %include "../C++/Application.h"
 %include "../C++/Initiator.h"
+%include "../C++/SocketInitiator.h"
+%include "../C++/SSLSocketInitiator.h"
 %include "../C++/Acceptor.h"
+%include "../C++/SocketAcceptor.h"
+%include "../C++/SSLSocketAcceptor.h"
 %include "../C++/DataDictionary.h"
