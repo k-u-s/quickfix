@@ -22300,7 +22300,7 @@ class Initiator(object):
 _quickfix.Initiator_swigregister(Initiator)
 
 class Acceptor(object):
-    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    thisown = property(lambda x: x.this.own(), wsllambda x, v: x.this.own(v), doc="The membership flag")
 
     def __init__(self, *args, **kwargs):
         raise AttributeError("No constructor defined - class is abstract")
