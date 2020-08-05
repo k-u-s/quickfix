@@ -277,6 +277,50 @@ class SocketAcceptor(SocketAcceptorBase):
 #endif
 %}
 
+%pythoncode %{
+#ifdef SWIGPYTHON
+
+#if (HAVE_SSL > 0)
+
+class SSLSocketInitiator(SocketInitiatorBase):
+  application = 0
+  storeFactory = 0
+  setting = 0
+  logFactory = 0
+
+  def __init__(self, application, storeFactory, settings, logFactory=None):
+    if logFactory == None:
+      SocketInitiatorBase.__init__(self, application, storeFactory, settings)
+    else:
+      SocketInitiatorBase.__init__(self, application, storeFactory, settings, logFactory)
+
+    self.application = application
+    self.storeFactory = storeFactory
+    self.settings = settings
+    self.logFactory = logFactory
+
+class SSLSocketAcceptor(SocketAcceptorBase):
+  application = 0
+  storeFactory = 0
+  setting = 0
+  logFactory = 0
+
+  def __init__(self, application, storeFactory, settings, logFactory=None):
+    if logFactory == None:
+      SocketAcceptorBase.__init__(self, application, storeFactory, settings)
+    else:
+      SocketAcceptorBase.__init__(self, application, storeFactory, settings, logFactory)
+
+    self.application = application
+    self.storeFactory = storeFactory
+    self.settings = settings
+    self.logFactory = logFactory
+
+#endif
+
+#endif
+%}
+
 %init %{
 #ifndef _MSC_VER
       struct sigaction new_action, old_action;
