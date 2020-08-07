@@ -53,6 +53,7 @@ public:
   void destroy( Log* log );
 
 private:
+  bool b_globalIncludeTimestamp = true;
   std::string m_path;
   std::string m_backupPath;
   SessionSettings m_settings;
@@ -70,30 +71,46 @@ private:
 class FileLog : public Log
 {
 public:
-  FileLog( const std::string& path );
-  FileLog( const std::string& path, const std::string& backupPath );
-  FileLog( const std::string& path, const SessionID& sessionID );
-  FileLog( const std::string& path, const std::string& backupPath, const SessionID& sessionID );
+  FileLog( const std::string& path, const bool includeTimestamp = true );
+  FileLog( const std::string& path, const std::string& backupPath, const bool includeTimestamp = true );
+  FileLog( const std::string& path, const SessionID& sessionID, const bool includeTimestamp = true );
+  FileLog( const std::string& path, const std::string& backupPath, const SessionID& sessionID, const bool includeTimestamp = true );
   virtual ~FileLog();
 
   void clear();
   void backup();
 
   void onIncoming( const std::string& value )
-  { m_messages << UtcTimeStampConvertor::convert(UtcTimeStamp(), 9) << " : " << value << std::endl; }
+  {
+    if( b_includeTimestamp )
+        m_messages << UtcTimeStampConvertor::convert(UtcTimeStamp(), 9) << " : " << value << std::endl;
+    else
+        m_messages << value << std::endl;
+  }
   void onOutgoing( const std::string& value )
-  { m_messages << UtcTimeStampConvertor::convert(UtcTimeStamp(), 9) << " : " << value << std::endl; }
+  {
+    if( b_includeTimestamp )
+        m_messages << UtcTimeStampConvertor::convert(UtcTimeStamp(), 9) << " : " << value << std::endl;
+    else
+        m_messages << value << std::endl;
+  }
   void onEvent( const std::string& value )
   {
-    UtcTimeStamp now;
-    m_event << UtcTimeStampConvertor::convert( now, 9 )
-            << " : " << value << std::endl;
+    if( b_includeTimestamp ){
+        UtcTimeStamp now;
+        m_event << UtcTimeStampConvertor::convert( now, 9 )
+                << " : " << value << std::endl;
+    }
+    else{
+        m_event << value << std::endl;
+    }
   }
 
 private:
   std::string generatePrefix( const SessionID& sessionID );
-  void init( std::string path, std::string backupPath, const std::string& prefix );
+  void init( std::string path, std::string backupPath, const std::string& prefix, const bool includeTimestamp );
 
+  bool b_includeTimestamp;
   std::ofstream m_messages;
   std::ofstream m_event;
   std::string m_messagesFileName;

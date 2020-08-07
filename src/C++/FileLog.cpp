@@ -31,7 +31,7 @@ Log* FileLogFactory::create()
 {
   if ( ++m_globalLogCount > 1 ) return m_globalLog;
 
-  if ( m_path.size() ) return new FileLog(m_path);
+  if ( m_path.size() ) return new FileLog(m_path, b_globalIncludeTimestamp);
 
   try
   {
@@ -43,8 +43,12 @@ Log* FileLogFactory::create()
     if ( settings.has( FILE_LOG_BACKUP_PATH ) )
       backupPath = settings.getString( FILE_LOG_BACKUP_PATH );
 
-    return m_globalLog = new FileLog( path, backupPath );
+    if( settings.has( FILE_LOG_INCLUDE_TIMESTAMP ) ){
+      std::string includeTimestampText = settings.getString( FILE_LOG_INCLUDE_TIMESTAMP );
+      b_globalIncludeTimestamp = includeTimestampText != "N";
+    }
 
+    return m_globalLog = new FileLog( path, backupPath, b_globalIncludeTimestamp );
   }
   catch( ConfigError& )
   {
@@ -60,6 +64,7 @@ Log* FileLogFactory::create( const SessionID& s )
   if ( m_path.size() )
     return new FileLog( m_path, s );
 
+  bool includeTimestamp = true;
   std::string path;
   std::string backupPath;
   Dictionary settings = m_settings.get( s );
@@ -68,7 +73,12 @@ Log* FileLogFactory::create( const SessionID& s )
   if( settings.has( FILE_LOG_BACKUP_PATH ) )
     backupPath = settings.getString( FILE_LOG_BACKUP_PATH );
 
-  return new FileLog( path, backupPath, s );
+  if( settings.has( FILE_LOG_INCLUDE_TIMESTAMP ) ){
+    std::string includeTimestampText = settings.getString( FILE_LOG_INCLUDE_TIMESTAMP );
+    includeTimestamp = includeTimestampText != "N";
+  }
+
+  return new FileLog( path, backupPath, s, includeTimestamp );
 }
 
 void FileLogFactory::destroy( Log* pLog )
@@ -79,24 +89,24 @@ void FileLogFactory::destroy( Log* pLog )
   }
 }
 
-FileLog::FileLog( const std::string& path )
+FileLog::FileLog( const std::string& path, const bool includeTimestamp )
 {
-  init( path, path, "GLOBAL" );
+  init( path, path, "GLOBAL", includeTimestamp );
 }
 
-FileLog::FileLog( const std::string& path, const std::string& backupPath )
+FileLog::FileLog( const std::string& path, const std::string& backupPath, const bool includeTimestamp )
 {
-  init( path, backupPath, "GLOBAL" );
+  init( path, backupPath, "GLOBAL", includeTimestamp );
 }
 
-FileLog::FileLog( const std::string& path, const SessionID& s )
+FileLog::FileLog( const std::string& path, const SessionID& s, const bool includeTimestamp )
 {
-  init( path, path, generatePrefix(s) );
+  init( path, path, generatePrefix(s), includeTimestamp );
 }
 
-FileLog::FileLog( const std::string& path, const std::string& backupPath, const SessionID& s )
+FileLog::FileLog( const std::string& path, const std::string& backupPath, const SessionID& s, const bool includeTimestamp )
 {
-  init( path, backupPath, generatePrefix(s) );
+  init( path, backupPath, generatePrefix(s), includeTimestamp );
 }
 
 std::string FileLog::generatePrefix( const SessionID& s )
@@ -117,7 +127,7 @@ std::string FileLog::generatePrefix( const SessionID& s )
   return prefix;
 }
 
-void FileLog::init( std::string path, std::string backupPath, const std::string& prefix )
+void FileLog::init( std::string path, std::string backupPath, const std::string& prefix, const bool includeTimestamp )
 {
   file_mkdir( path.c_str() );
   file_mkdir( backupPath.c_str() );
@@ -130,6 +140,7 @@ void FileLog::init( std::string path, std::string backupPath, const std::string&
   m_fullBackupPrefix
     = file_appendpath(backupPath, prefix + ".");
 
+  b_includeTimestamp = includeTimestamp;
   m_messagesFileName = m_fullPrefix + "messages.current.log";
   m_eventFileName = m_fullPrefix + "event.current.log";
 
