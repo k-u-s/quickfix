@@ -212,6 +212,7 @@ void FileLog::reloadFileStream( const std::string& suffix )
   std::ofstream* event = new std::ofstream();
   std::string fullFileNameSuffix = "." + suffix + ".log";
   std::replace( fullFileNameSuffix.begin(), fullFileNameSuffix.end(), ':', '-');
+  std::replace( fullFileNameSuffix.begin(), fullFileNameSuffix.end(), ' ', '-');
   std::string messagesFileName = m_fullPrefix + "messages.current" + fullFileNameSuffix;
   std::string eventFileName = m_fullPrefix + "event.current" + fullFileNameSuffix;
 
@@ -270,6 +271,7 @@ void FileLog::init( std::string path, std::string backupPath, const std::string&
   }
 
   std::replace( m_fullFileNameSuffix.begin(), m_fullFileNameSuffix.end(), ':', '-');
+  std::replace( m_fullFileNameSuffix.begin(), m_fullFileNameSuffix.end(), ' ', '-');
   m_messagesFileName = m_fullPrefix + "messages.current" + m_fullFileNameSuffix;
   m_eventFileName = m_fullPrefix + "event.current" + m_fullFileNameSuffix;
 
@@ -325,8 +327,9 @@ void FileLog::backup( std::ofstream& messages, std::ofstream& event,
       suffix = std::to_string(++i) + ".log";
     }
 
-    messagesFileNameStream << m_fullBackupPrefix << "messages.backup."<< ++i << suffix;
-    eventFileNameStream << m_fullBackupPrefix << "event.backup."<< i << suffix;
+    messagesFileNameStream << m_fullBackupPrefix << "messages.backup."<< suffix;
+    eventFileNameStream << m_fullBackupPrefix << "event.backup."<< suffix;
+
     FILE* messagesLogFile = file_fopen( messagesFileNameStream.str().c_str(), "r" );
     FILE* eventLogFile = file_fopen( eventFileNameStream.str().c_str(), "r" );
 
@@ -338,8 +341,11 @@ void FileLog::backup( std::ofstream& messages, std::ofstream& event,
       if ( c_rollFileType == 'D'
         || c_rollFileType == 'H'
         || c_rollFileType == 'm'){
-        std::remove(messagesFileName.c_str());
-        std::remove(eventFileName.c_str());
+        if ( messagesFileName.c_str() != messagesFileNameStream.str().c_str() )
+            std::remove(messagesFileName.c_str());
+
+        if ( eventFileName.c_str() != eventFileNameStream.str().c_str() )
+            std::remove(eventFileName.c_str());
       } else{
         messages.open( messagesFileName.c_str(), std::ios::out | std::ios::trunc );
         event.open( eventFileName.c_str(), std::ios::out | std::ios::trunc );
