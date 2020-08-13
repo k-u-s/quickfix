@@ -29,6 +29,7 @@
 #include "Log.h"
 #include "SessionSettings.h"
 #include <fstream>
+#include <mutex>
 
 namespace FIX
 {
@@ -54,6 +55,7 @@ public:
 
 private:
   bool b_globalIncludeTimestamp = true;
+  bool c_globalRollFileType = 'N';
   std::string m_path;
   std::string m_backupPath;
   SessionSettings m_settings;
@@ -71,10 +73,10 @@ private:
 class FileLog : public Log
 {
 public:
-  FileLog( const std::string& path, const bool includeTimestamp = true );
-  FileLog( const std::string& path, const std::string& backupPath, const bool includeTimestamp = true );
-  FileLog( const std::string& path, const SessionID& sessionID, const bool includeTimestamp = true );
-  FileLog( const std::string& path, const std::string& backupPath, const SessionID& sessionID, const bool includeTimestamp = true );
+  FileLog( const std::string& path, const bool includeTimestamp = true, const char rollFileType = 'N' );
+  FileLog( const std::string& path, const std::string& backupPath, const bool includeTimestamp = true, const char rollFileType = 'N' );
+  FileLog( const std::string& path, const SessionID& sessionID, const bool includeTimestamp = true, const char rollFileType = 'N' );
+  FileLog( const std::string& path, const std::string& backupPath, const SessionID& sessionID, const bool includeTimestamp = true, const char rollFileType = 'N' );
   virtual ~FileLog();
 
   void clear();
@@ -82,41 +84,62 @@ public:
 
   void onIncoming( const std::string& value )
   {
+    UtcTimeStamp now;
+    std::ofstream& messages = getMessagesStream(now);
     if( b_includeTimestamp )
-        m_messages << UtcTimeStampConvertor::convert(UtcTimeStamp(), 9) << " : " << value << std::endl;
+        messages << UtcTimeStampConvertor::convert(now, 9) << " : " << value << std::endl;
     else
-        m_messages << value << std::endl;
+        messages << value << std::endl;
   }
   void onOutgoing( const std::string& value )
   {
+    UtcTimeStamp now;
+    std::ofstream& messages = getMessagesStream(now);
     if( b_includeTimestamp )
-        m_messages << UtcTimeStampConvertor::convert(UtcTimeStamp(), 9) << " : " << value << std::endl;
+        messages << UtcTimeStampConvertor::convert(now, 9) << " : " << value << std::endl;
     else
-        m_messages << value << std::endl;
+        messages << value << std::endl;
   }
   void onEvent( const std::string& value )
   {
+    UtcTimeStamp now;
+    std::ofstream& events = getEventsStream(now);
     if( b_includeTimestamp ){
-        UtcTimeStamp now;
-        m_event << UtcTimeStampConvertor::convert( now, 9 )
+        events << UtcTimeStampConvertor::convert( now, 9 )
                 << " : " << value << std::endl;
     }
     else{
-        m_event << value << std::endl;
+        events << value << std::endl;
     }
   }
 
 private:
   std::string generatePrefix( const SessionID& sessionID );
-  void init( std::string path, std::string backupPath, const std::string& prefix, const bool includeTimestamp );
+
+  std::string generateSuffix( const UtcTimeStamp& timestamp );
+  std::ofstream& getMessagesStream( const UtcTimeStamp& timestamp );
+  std::ofstream& getEventsStream( const UtcTimeStamp& timestamp );
+  void reloadFileStream( const std::string& suffix );
+  void cleanFileStream( std::ofstream* messages, std::ofstream* event,
+    const std::string& messagesFileName, const std::string& eventFileName, const std::string& fullFileNameSuffix  );
+
+  void init( std::string path, std::string backupPath, const std::string& prefix,
+    const bool includeTimestamp, const char rollFileType );
+  void backup( std::ofstream& messages, std::ofstream& event,
+    const std::string& messagesFileName, const std::string& eventFileName, const std::string& fullFileNameSuffix );
 
   bool b_includeTimestamp;
-  std::ofstream m_messages;
-  std::ofstream m_event;
+  std::ofstream* m_messages;
+  std::ofstream* m_event;
   std::string m_messagesFileName;
   std::string m_eventFileName;
   std::string m_fullPrefix;
   std::string m_fullBackupPrefix;
+
+  char c_rollFileType;
+  std::mutex m_fileRollingMutex;
+  std::string m_fileNameSuffix;
+  std::string m_fullFileNameSuffix;
 };
 }
 
