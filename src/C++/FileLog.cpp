@@ -158,18 +158,18 @@ std::string FileLog::generateSuffix( const UtcTimeStamp& timestamp )
   if(c_rollFileType == 'N'){
     return "";
   } else if ( c_rollFileType == 'D'){
-    UtcTimeStamp t (timestamp.getYear(), timestamp.getMonth(), timestamp.getDay());
-    std::string timestampText = UtcTimeStampConvertor::convert( t, 1 );
+    UtcTimeStamp t (0, 0, 0, 0,
+      timestamp.getDay(), timestamp.getMonth(), timestamp.getYear());
     return timestampText;
   } else if ( c_rollFileType == 'H'){
-    UtcTimeStamp t (timestamp.getYear(), timestamp.getMonth(), timestamp.getDay(),
-      timestamp.getHour(), 0, 0);
-    std::string timestampText = UtcTimeStampConvertor::convert( t, 1 );
+    UtcTimeStamp t (timestamp.getHour(), 0, 0, 0,
+      timestamp.getDay(), timestamp.getMonth(), timestamp.getYear());
+    std::string timestampText = UtcTimeStampConvertor::convert( t, 0 );
     return timestampText;
   } else if ( c_rollFileType == 'm'){
-    UtcTimeStamp t (timestamp.getYear(), timestamp.getMonth(), timestamp.getDay(),
-      timestamp.getHour(), timestamp.getMinute(), 0);
-    std::string timestampText = UtcTimeStampConvertor::convert( t, 1 );
+    UtcTimeStamp t (timestamp.getHour(), timestamp.getMinute(), 0, 0,
+      timestamp.getDay(), timestamp.getMonth(), timestamp.getYear());
+    std::string timestampText = UtcTimeStampConvertor::convert( t, 0 );
     return timestampText;
   }
 
