@@ -26,7 +26,7 @@
 #include "FileLog.h"
 #include <thread>
 #include <chrono>
-#include <filesystem>
+#include <stdio.h>
 
 namespace FIX
 {
@@ -338,8 +338,8 @@ void FileLog::backup( std::ofstream& messages, std::ofstream& event,
       if ( c_rollFileType == 'D'
         || c_rollFileType == 'H'
         || c_rollFileType == 'm'){
-        std::filesystem::remove(messagesFileName.c_str());
-        std::filesystem::remove(eventFileName.c_str());
+        std::remove(messagesFileName.c_str());
+        std::remove(eventFileName.c_str());
       } else{
         messages.open( messagesFileName.c_str(), std::ios::out | std::ios::trunc );
         event.open( eventFileName.c_str(), std::ios::out | std::ios::trunc );
