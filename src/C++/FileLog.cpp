@@ -160,6 +160,7 @@ std::string FileLog::generateSuffix( const UtcTimeStamp& timestamp )
   } else if ( c_rollFileType == 'D'){
     UtcTimeStamp t (0, 0, 0, 0,
       timestamp.getDay(), timestamp.getMonth(), timestamp.getYear());
+    std::string timestampText = UtcTimeStampConvertor::convert( t, 0 );
     return timestampText;
   } else if ( c_rollFileType == 'H'){
     UtcTimeStamp t (timestamp.getHour(), 0, 0, 0,
