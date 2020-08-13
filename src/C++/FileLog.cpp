@@ -324,11 +324,11 @@ void FileLog::backup( std::ofstream& messages, std::ofstream& event,
       || c_rollFileType == 'm'){
       suffix = fullFileNameSuffix;
     } else{
-      suffix = std::to_string(++i) + ".log";
+      suffix = "." + std::to_string(++i) + ".log";
     }
 
-    messagesFileNameStream << m_fullBackupPrefix << "messages.backup."<< suffix;
-    eventFileNameStream << m_fullBackupPrefix << "event.backup."<< suffix;
+    messagesFileNameStream << m_fullBackupPrefix << "messages.backup"<< suffix;
+    eventFileNameStream << m_fullBackupPrefix << "event.backup"<< suffix;
 
     FILE* messagesLogFile = file_fopen( messagesFileNameStream.str().c_str(), "r" );
     FILE* eventLogFile = file_fopen( eventFileNameStream.str().c_str(), "r" );
