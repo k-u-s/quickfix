@@ -26,6 +26,7 @@
 #include "FileLog.h"
 #include <thread>
 #include <chrono>
+#include <filesystem>
 
 namespace FIX
 {
@@ -158,17 +159,17 @@ std::string FileLog::generateSuffix( const UtcTimeStamp& timestamp )
     return "";
   } else if ( c_rollFileType == 'D'){
     UtcTimeStamp t (timestamp.getYear(), timestamp.getMonth(), timestamp.getDay());
-    std::string timestampText = UtcTimeStampConvertor::convert( t, 0 );
+    std::string timestampText = UtcTimeStampConvertor::convert( t, 1 );
     return timestampText;
   } else if ( c_rollFileType == 'H'){
     UtcTimeStamp t (timestamp.getYear(), timestamp.getMonth(), timestamp.getDay(),
       timestamp.getHour(), 0, 0);
-    std::string timestampText = UtcTimeStampConvertor::convert( t, 0 );
+    std::string timestampText = UtcTimeStampConvertor::convert( t, 1 );
     return timestampText;
   } else if ( c_rollFileType == 'm'){
     UtcTimeStamp t (timestamp.getYear(), timestamp.getMonth(), timestamp.getDay(),
       timestamp.getHour(), timestamp.getMinute(), 0);
-    std::string timestampText = UtcTimeStampConvertor::convert( t, 0 );
+    std::string timestampText = UtcTimeStampConvertor::convert( t, 1 );
     return timestampText;
   }
 
@@ -207,24 +208,24 @@ void FileLog::reloadFileStream( const std::string& suffix )
   std::string prevEventFileName = m_eventFileName;
   std::string prevFullFileNameSuffix = m_fullFileNameSuffix;
 
-  std::ofstream messages;
-  std::ofstream event;
+  std::ofstream* messages = new std::ofstream();
+  std::ofstream* event = new std::ofstream();
   std::string fullFileNameSuffix = "." + suffix + ".log";
   std::replace( fullFileNameSuffix.begin(), fullFileNameSuffix.end(), ':', '-');
   std::string messagesFileName = m_fullPrefix + "messages.current" + fullFileNameSuffix;
   std::string eventFileName = m_fullPrefix + "event.current" + fullFileNameSuffix;
 
-  messages.open( messagesFileName.c_str(), std::ios::out | std::ios::app );
-  if ( !messages.is_open() ) throw ConfigError( "Could not open messages file: " + messagesFileName );
-  event.open( eventFileName.c_str(), std::ios::out | std::ios::app );
-  if ( !event.is_open() ) throw ConfigError( "Could not open event file: " + eventFileName );
+  messages->open( messagesFileName.c_str(), std::ios::out | std::ios::app );
+  if ( !messages->is_open() ) throw ConfigError( "Could not open messages file: " + messagesFileName );
+  event->open( eventFileName.c_str(), std::ios::out | std::ios::app );
+  if ( !event->is_open() ) throw ConfigError( "Could not open event file: " + eventFileName );
 
   m_fileNameSuffix = suffix;
   m_fullFileNameSuffix = fullFileNameSuffix;
   m_messagesFileName = messagesFileName;
   m_eventFileName = eventFileName;
-  m_messages = &messages;
-  m_event = &event;
+  m_messages = messages;
+  m_event = event;
 
   std::thread cleanUpThread (&FileLog::cleanFileStream, this, prevMessages, prevEvent,
     prevMessagesFileName, prevEventFileName, prevFullFileNameSuffix );
@@ -315,8 +316,17 @@ void FileLog::backup( std::ofstream& messages, std::ofstream& event,
     std::stringstream messagesFileNameStream;
     std::stringstream eventFileNameStream;
 
-    messagesFileNameStream << m_fullBackupPrefix << "messages.backup."<< ++i << fullFileNameSuffix;
-    eventFileNameStream << m_fullBackupPrefix << "event.backup."<< i << fullFileNameSuffix;
+    std::string suffix;
+    if ( c_rollFileType == 'D'
+      || c_rollFileType == 'H'
+      || c_rollFileType == 'm'){
+      suffix = fullFileNameSuffix;
+    } else{
+      suffix = std::to_string(++i) + ".log";
+    }
+
+    messagesFileNameStream << m_fullBackupPrefix << "messages.backup."<< ++i << suffix;
+    eventFileNameStream << m_fullBackupPrefix << "event.backup."<< i << suffix;
     FILE* messagesLogFile = file_fopen( messagesFileNameStream.str().c_str(), "r" );
     FILE* eventLogFile = file_fopen( eventFileNameStream.str().c_str(), "r" );
 
@@ -328,7 +338,8 @@ void FileLog::backup( std::ofstream& messages, std::ofstream& event,
       if ( c_rollFileType == 'D'
         || c_rollFileType == 'H'
         || c_rollFileType == 'm'){
-        // For rolling file no need to recreate file
+        std::filesystem::remove(messagesFileName.c_str());
+        std::filesystem::remove(eventFileName.c_str());
       } else{
         messages.open( messagesFileName.c_str(), std::ios::out | std::ios::trunc );
         event.open( eventFileName.c_str(), std::ios::out | std::ios::trunc );
