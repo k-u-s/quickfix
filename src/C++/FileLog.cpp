@@ -319,12 +319,16 @@ void FileLog::backup( std::ofstream& messages, std::ofstream& event,
     std::stringstream messagesFileNameStream;
     std::stringstream eventFileNameStream;
 
-    std::string suffix;
-    if ( c_rollFileType == 'D'
+    bool isRollingFile = c_rollFileType == 'D'
       || c_rollFileType == 'H'
-      || c_rollFileType == 'm'){
+      || c_rollFileType == 'm';
+    std::string suffix;
+    if ( isRollingFile ) {
+      if( m_fullPrefix == m_fullBackupPrefix)
+        return; // For rolling file do not backup when directories are same
+
       suffix = fullFileNameSuffix;
-    } else{
+    } else {
       suffix = "." + std::to_string(++i) + ".log";
     }
 
@@ -339,15 +343,13 @@ void FileLog::backup( std::ofstream& messages, std::ofstream& event,
       file_rename( messagesFileName.c_str(), messagesFileNameStream.str().c_str() );
       file_rename( eventFileName.c_str(), eventFileNameStream.str().c_str() );
 
-      if ( c_rollFileType == 'D'
-        || c_rollFileType == 'H'
-        || c_rollFileType == 'm'){
-        if ( messagesFileName.c_str() != messagesFileNameStream.str().c_str() )
-            std::remove(messagesFileName.c_str());
-
-        if ( eventFileName.c_str() != eventFileNameStream.str().c_str() )
-            std::remove(eventFileName.c_str());
-      } else{
+      if ( isRollingFile )
+      {
+        std::remove(messagesFileName.c_str());
+        std::remove(eventFileName.c_str());
+      }
+      else
+      {
         messages.open( messagesFileName.c_str(), std::ios::out | std::ios::trunc );
         event.open( eventFileName.c_str(), std::ios::out | std::ios::trunc );
       }
