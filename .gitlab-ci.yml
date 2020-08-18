@@ -1,0 +1,37 @@
+image: docker:19.03.12
+
+services:
+  - docker:19.03.12-dind
+
+stages:
+  - build
+  - test
+  - publish
+  - deploy
+
+variables:
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  PROJECT_APP_DOCKERFILE: "Dockerfile"
+  CONTAINER_APP_IMAGE: $CI_REGISTRY/$CI_REGISTRY_IMAGE/base:$CI_COMMIT_SHORT_SHA
+  CONTAINER_LEATEST_IMAGE: $CI_REGISTRY/$CI_REGISTRY_IMAGE/base:latest
+
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+build:
+  stage: build
+  script:
+    - docker build -t $CONTAINER_APP_IMAGE -f $PROJECT_APP_DOCKERFILE .
+    - docker push $CONTAINER_APP_IMAGE
+  only:
+    - feature/python-ssl
+
+deploy:
+  stage: publish
+  script:
+    - docker pull $CONTAINER_APP_IMAGE
+    - docker tag $CONTAINER_APP_IMAGE $CONTAINER_LEATEST_IMAGE
+    - docker push $CONTAINER_LEATEST_IMAGE
+  only:
+    - feature/python-ssl
